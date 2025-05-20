@@ -7,6 +7,7 @@ import (
 )
 
 type IAddressRepository interface {
+	CreateAddress(tx *gorm.DB, address *entity.Address) (*entity.Address, error)
 }
 
 type AddressRepository struct {
