@@ -3,8 +3,15 @@ package repository
 import "gorm.io/gorm"
 
 type Repository struct {
+	UserRepository    IUserRepository
+	CartRepository    ICartRepository
+	AddressRepository IAddressRepository
 }
 
 func NewRepository(db *gorm.DB) *Repository {
-	return &Repository{}
+	return &Repository{
+		UserRepository:    NewUserRepository(db),
+		CartRepository:    NewCartRepository(db),
+		AddressRepository: NewAddressRepository(db),
+	}
 }
