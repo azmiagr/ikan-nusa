@@ -14,5 +14,7 @@ type Address struct {
 	UserID        uuid.UUID `json:"user_id"`
 	CreatedAt     time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt     time.Time `json:"updated_at" gorm:"autoUpdateTime"`
-	DistrictID    int       `json:"district_id"`
+
+	District   District `json:"district"`
+	DistrictID int      `json:"district_id"`
 }
