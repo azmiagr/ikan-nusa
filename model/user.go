@@ -19,3 +19,15 @@ type UserRegister struct {
 type UserRegisterResponse struct {
 	Token string `json:"token"`
 }
+
+type AddAddressAfterRegisterParam struct {
+	UserID        uuid.UUID `json:"user_id"`
+	DistrictID    int       `json:"district_id" binding:"required"`
+	PostalCode    string    `json:"postal_code" binding:"required"`
+	AddressDetail string    `json:"address_detail" binding:"required"`
+}
+
+type VerifyUser struct {
+	UserID  uuid.UUID `json:"user_id" binding:"required"`
+	OtpCode string    `json:"otp_code" binding:"required"`
+}
