@@ -25,6 +25,8 @@ func (r *Rest) MountEndpoint() {
 
 	auth := baseURL.Group("/auth")
 	auth.POST("/register", r.Register)
+	auth.POST("/register/add-address", r.AddAddressAfterRegister)
+	auth.PATCH("/register", r.VerifyUser)
 
 }
 
