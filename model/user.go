@@ -31,3 +31,12 @@ type VerifyUser struct {
 	UserID  uuid.UUID `json:"user_id" binding:"required"`
 	OtpCode string    `json:"otp_code" binding:"required"`
 }
+
+type UserLoginParam struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
+}
