@@ -72,3 +72,25 @@ func (r *Rest) VerifyUser(c *gin.Context) {
 
 	response.Success(c, http.StatusOK, "success verify user", nil)
 }
+
+func (r *Rest) Login(c *gin.Context) {
+	var param model.UserLoginParam
+	err := c.ShouldBindJSON(&param)
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "failed to bind input", err)
+		return
+	}
+
+	res, err := r.service.UserService.Login(param)
+	if err != nil {
+		if err.Error() == "email or password is wrong" {
+			response.Error(c, http.StatusBadRequest, "email or password is wrong", err)
+		} else {
+			response.Error(c, http.StatusInternalServerError, "failed to login user", err)
+			return
+		}
+	}
+
+	response.Success(c, http.StatusOK, "success to login user", res)
+
+}

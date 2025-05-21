@@ -22,6 +22,7 @@ type IUserService interface {
 	Register(param *model.UserRegister) (*model.UserRegisterResponse, error)
 	AddAddressAfterRegister(param model.AddAddressAfterRegisterParam) error
 	VerifyUser(param model.VerifyUser) error
+	Login(param model.UserLoginParam) (*model.LoginResponse, error)
 }
 
 type UserService struct {
@@ -207,4 +208,37 @@ func (u *UserService) VerifyUser(param model.VerifyUser) error {
 	}
 
 	return nil
+}
+
+func (u *UserService) Login(param model.UserLoginParam) (*model.LoginResponse, error) {
+	tx := u.db.Begin()
+	defer tx.Rollback()
+
+	var res model.LoginResponse
+
+	user, err := u.UserRepository.GetUser(model.UserParam{
+		Email: param.Email,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = u.BCrypt.CompareAndHashPassword(user.Password, param.Password)
+	if err != nil {
+		return nil, errors.New("email or password is wrong")
+	}
+
+	token, err := u.JwtAuth.CreateJWTToken(user.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	res.Token = token
+
+	err = tx.Commit().Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &res, nil
 }
