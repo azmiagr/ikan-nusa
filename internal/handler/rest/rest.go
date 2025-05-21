@@ -27,6 +27,7 @@ func (r *Rest) MountEndpoint() {
 	auth.POST("/register", r.Register)
 	auth.POST("/register/add-address", r.AddAddressAfterRegister)
 	auth.PATCH("/register", r.VerifyUser)
+	auth.POST("/login", r.Login)
 
 }
 
