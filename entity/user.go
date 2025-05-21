@@ -10,6 +10,7 @@ type User struct {
 	StatusAccount string    `json:"-" gorm:"type:enum('inactive', 'active');"`
 	PhoneNumber   string    `json:"phone_number" gorm:"type:varchar(20);not null"`
 
+	Store     Store     `json:"store" gorm:"foreignKey:UserID"`
 	Cart      Cart      `json:"cart" gorm:"foreignKey:UserID"`
 	Addresses []Address `json:"addresses" gorm:"foreignKey:UserID"`
 	OtpCode   []OtpCode `json:"otp_code" gorm:"foreignKey:UserID"`
