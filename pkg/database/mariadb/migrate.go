@@ -9,6 +9,8 @@ import (
 func Migrate(db *gorm.DB) error {
 	err := db.AutoMigrate(
 		&entity.User{},
+		&entity.Store{},
+		&entity.Product{},
 		&entity.OtpCode{},
 		&entity.Cart{},
 		&entity.Province{},
