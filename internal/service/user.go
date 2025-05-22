@@ -22,7 +22,9 @@ type IUserService interface {
 	Register(param *model.UserRegister) (*model.UserRegisterResponse, error)
 	AddAddressAfterRegister(param model.AddAddressAfterRegisterParam) error
 	VerifyUser(param model.VerifyUser) error
+	RegisterStore(userID uuid.UUID, param model.RegisterStoreParam) (*model.RegisterStoreResponse, error)
 	Login(param model.UserLoginParam) (*model.LoginResponse, error)
+	GetUser(param model.UserParam) (*entity.User, error)
 }
 
 type UserService struct {
@@ -30,18 +32,20 @@ type UserService struct {
 	UserRepository    repository.IUserRepository
 	CartRepository    repository.ICartRepository
 	AddressRepository repository.IAddressRepository
+	StoreRepository   repository.IStoreRepository
 	OtpRepository     repository.IOtpRepository
 	BCrypt            bcrypt.Interface
 	JwtAuth           jwt.Interface
 	Supabase          supabase.Interface
 }
 
-func NewUserService(userRepository repository.IUserRepository, cartRepository repository.ICartRepository, addressRepository repository.IAddressRepository, otpRepository repository.IOtpRepository, bcrypt bcrypt.Interface, jwtAuth jwt.Interface, supabase supabase.Interface) IUserService {
+func NewUserService(userRepository repository.IUserRepository, cartRepository repository.ICartRepository, addressRepository repository.IAddressRepository, otpRepository repository.IOtpRepository, storeRepository repository.IStoreRepository, bcrypt bcrypt.Interface, jwtAuth jwt.Interface, supabase supabase.Interface) IUserService {
 	return &UserService{
 		db:                mariadb.Connection,
 		UserRepository:    userRepository,
 		CartRepository:    cartRepository,
 		AddressRepository: addressRepository,
+		StoreRepository:   storeRepository,
 		OtpRepository:     otpRepository,
 		BCrypt:            bcrypt,
 		JwtAuth:           jwtAuth,
@@ -241,4 +245,44 @@ func (u *UserService) Login(param model.UserLoginParam) (*model.LoginResponse, e
 	}
 
 	return &res, nil
+}
+
+func (u *UserService) RegisterStore(userID uuid.UUID, param model.RegisterStoreParam) (*model.RegisterStoreResponse, error) {
+	tx := u.db.Begin()
+	defer tx.Rollback()
+
+	_, err := u.StoreRepository.GetStore(tx, model.StoreParam{
+		StoreName: param.StoreName,
+	})
+	if err == nil {
+		return nil, errors.New("store name already exists")
+	}
+
+	store := &entity.Store{
+		StoreID:          uuid.New(),
+		StoreName:        param.StoreName,
+		StoreDescription: param.StoreDescription,
+		UserID:           userID,
+	}
+
+	_, err = u.StoreRepository.CreateStore(tx, store)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return nil, err
+	}
+
+	res := &model.RegisterStoreResponse{
+		StoreName:        store.StoreName,
+		StoreDescription: store.StoreDescription,
+	}
+
+	return res, nil
+}
+
+func (u *UserService) GetUser(param model.UserParam) (*entity.User, error) {
+	return u.UserRepository.GetUser(param)
 }
