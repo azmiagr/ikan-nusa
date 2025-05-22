@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"ikan-nusa/entity"
 	"ikan-nusa/model"
 	"ikan-nusa/pkg/response"
 	"net/http"
@@ -92,5 +93,30 @@ func (r *Rest) Login(c *gin.Context) {
 	}
 
 	response.Success(c, http.StatusOK, "success to login user", res)
+
+}
+
+func (r *Rest) RegisterStore(c *gin.Context) {
+	user := c.MustGet("user").(*entity.User)
+
+	var param model.RegisterStoreParam
+	err := c.ShouldBindJSON(&param)
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "failed to bind input", err)
+		return
+	}
+
+	res, err := r.service.UserService.RegisterStore(user.UserID, param)
+	if err != nil {
+		if err.Error() == "store name already exists" {
+			response.Error(c, http.StatusConflict, "store name already exists", err)
+			return
+		} else {
+			response.Error(c, http.StatusInternalServerError, "failed to register new store", err)
+			return
+		}
+	}
+
+	response.Success(c, http.StatusCreated, "success register new store", res)
 
 }
