@@ -3,20 +3,23 @@ package rest
 import (
 	"fmt"
 	"ikan-nusa/internal/service"
+	"ikan-nusa/pkg/middleware"
 	"os"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Rest struct {
-	router  *gin.Engine
-	service *service.Service
+	router     *gin.Engine
+	service    *service.Service
+	middleware middleware.Interface
 }
 
-func NewRest(service *service.Service) *Rest {
+func NewRest(service *service.Service, middleware middleware.Interface) *Rest {
 	return &Rest{
-		router:  gin.Default(),
-		service: service,
+		router:     gin.Default(),
+		service:    service,
+		middleware: middleware,
 	}
 }
 
@@ -28,6 +31,10 @@ func (r *Rest) MountEndpoint() {
 	auth.POST("/register/add-address", r.AddAddressAfterRegister)
 	auth.PATCH("/register", r.VerifyUser)
 	auth.POST("/login", r.Login)
+
+	user := baseURL.Group("/users")
+	user.Use(r.middleware.AuthenticateUser)
+	user.POST("/register-store", r.RegisterStore)
 
 }
 
