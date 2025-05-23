@@ -40,6 +40,7 @@ func (r *Rest) MountEndpoint() {
 	store.Use(r.middleware.AuthenticateUser)
 	store.GET("/products/:category", r.GetProductsByCategory)
 	store.GET("/products/detail/:product_id", r.GetProductsDetail)
+	store.GET("/products", r.GetProductsByName)
 	store.POST("/add-product", r.AddProduct)
 
 }
