@@ -13,12 +13,14 @@ type AddProductResponse struct {
 }
 
 type GetProductsByCategoryResponse struct {
+	ProductID   int     `json:"product_id"`
 	ProductName string  `json:"product_name"`
 	Price       float64 `json:"price"`
 	StoreName   string  `json:"store_name"`
 }
 
 type GetProductsDetailResponse struct {
+	ProductID   int     `json:"product_id"`
 	ProductName string  `json:"product_name"`
 	Price       float64 `json:"price"`
 	Stock       int     `json:"stock"`

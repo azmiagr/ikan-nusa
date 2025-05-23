@@ -88,6 +88,7 @@ func (p *ProductService) GetProductsByCategory(category string) ([]*model.GetPro
 		}
 
 		res = append(res, &model.GetProductsByCategoryResponse{
+			ProductID:   v.ProductID,
 			ProductName: v.ProductName,
 			Price:       v.Price,
 			StoreName:   store.StoreName,
@@ -121,6 +122,7 @@ func (p *ProductService) GetProductsDetail(productID int) (*model.GetProductsDet
 	}
 
 	res := &model.GetProductsDetailResponse{
+		ProductID:   product.ProductID,
 		ProductName: product.ProductName,
 		Price:       product.Price,
 		Stock:       product.Stock,

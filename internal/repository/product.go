@@ -14,6 +14,7 @@ type IProductRepository interface {
 	GetAllProducts() ([]*entity.Product, error)
 	GetProductsByStoreID(storeID uuid.UUID) ([]*entity.Product, error)
 	GetProductsDetail(productID int) (*entity.Product, error)
+	GetProductsByName(productName string) ([]*entity.Product, error)
 }
 
 type ProductRepository struct {
@@ -80,4 +81,14 @@ func (p *ProductRepository) GetProductsDetail(productID int) (*entity.Product, e
 	}
 
 	return &product, nil
+}
+
+func (p *ProductRepository) GetProductsByName(productName string) ([]*entity.Product, error) {
+	var products []*entity.Product
+	err := p.db.Debug().Where("product_name LIKE ?", "%"+productName+"%").Find(&products).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return products, nil
 }
