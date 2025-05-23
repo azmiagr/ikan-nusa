@@ -11,3 +11,9 @@ type AddProduct struct {
 type AddProductResponse struct {
 	ProductID int `json:"product_id"`
 }
+
+type GetProductsByCategoryResponse struct {
+	ProductName string  `json:"product_name"`
+	Price       float64 `json:"price"`
+	StoreName   string  `json:"store_name"`
+}
