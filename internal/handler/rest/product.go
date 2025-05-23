@@ -5,6 +5,7 @@ import (
 	"ikan-nusa/model"
 	"ikan-nusa/pkg/response"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -43,4 +44,22 @@ func (r *Rest) GetProductsByCategory(c *gin.Context) {
 	}
 
 	response.Success(c, http.StatusOK, "success get products", res)
+}
+
+func (r *Rest) GetProductsDetail(c *gin.Context) {
+	productID := c.Param("product_id")
+
+	idInt, err := strconv.Atoi(productID)
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "invalid id format", err)
+		return
+	}
+
+	res, err := r.service.ProductService.GetProductsDetail(idInt)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "failed to get products detail", err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "success get products detail", res)
 }
