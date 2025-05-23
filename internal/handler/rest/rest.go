@@ -36,6 +36,10 @@ func (r *Rest) MountEndpoint() {
 	user.Use(r.middleware.AuthenticateUser)
 	user.POST("/register-store", r.RegisterStore)
 
+	store := baseURL.Group("/stores")
+	store.Use(r.middleware.AuthenticateUser)
+	store.POST("/add-product", r.AddProduct)
+
 }
 
 func (r *Rest) Run() {
