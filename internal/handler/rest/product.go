@@ -63,3 +63,15 @@ func (r *Rest) GetProductsDetail(c *gin.Context) {
 
 	response.Success(c, http.StatusOK, "success get products detail", res)
 }
+
+func (r *Rest) GetProductsByName(c *gin.Context) {
+	productName := c.Query("product")
+
+	res, err := r.service.ProductService.GetProductsByName(productName)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "failed to get products", err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "success get products", res)
+}
