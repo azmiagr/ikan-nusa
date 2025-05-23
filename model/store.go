@@ -5,6 +5,7 @@ import "github.com/google/uuid"
 type StoreParam struct {
 	StoreID   uuid.UUID `json:"-"`
 	StoreName string    `json:"-"`
+	UserID    uuid.UUID `json:"-"`
 }
 
 type RegisterStoreParam struct {
