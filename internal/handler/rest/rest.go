@@ -38,6 +38,7 @@ func (r *Rest) MountEndpoint() {
 
 	store := baseURL.Group("/stores")
 	store.Use(r.middleware.AuthenticateUser)
+	store.GET("/products/:category", r.GetProductsByCategory)
 	store.POST("/add-product", r.AddProduct)
 
 }

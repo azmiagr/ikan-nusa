@@ -32,3 +32,15 @@ func (r *Rest) AddProduct(c *gin.Context) {
 
 	response.Success(c, http.StatusCreated, "success add new product", res)
 }
+
+func (r *Rest) GetProductsByCategory(c *gin.Context) {
+	category := c.Param("category")
+
+	res, err := r.service.ProductService.GetProductsByCategory(category)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "failed to get products", err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "success get products", res)
+}

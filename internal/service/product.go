@@ -13,6 +13,7 @@ import (
 
 type IProductService interface {
 	AddProduct(userID uuid.UUID, param *model.AddProduct) (*model.AddProductResponse, error)
+	GetProductsByCategory(category string) ([]*model.GetProductsByCategoryResponse, error)
 }
 
 type ProductService struct {
@@ -64,4 +65,34 @@ func (p *ProductService) AddProduct(userID uuid.UUID, param *model.AddProduct) (
 	}
 
 	return res, nil
+}
+
+func (p *ProductService) GetProductsByCategory(category string) ([]*model.GetProductsByCategoryResponse, error) {
+	tx := p.db.Begin()
+	defer tx.Rollback()
+
+	var res []*model.GetProductsByCategoryResponse
+
+	products, err := p.ProductRepository.GetProductsByCategory(category)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range products {
+		store, err := p.StoreRepository.GetStore(tx, model.StoreParam{
+			StoreID: v.StoreID,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, &model.GetProductsByCategoryResponse{
+			ProductName: v.ProductName,
+			Price:       v.Price,
+			StoreName:   store.StoreName,
+		})
+	}
+
+	return res, nil
+
 }
