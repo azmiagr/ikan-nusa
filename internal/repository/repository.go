@@ -8,6 +8,7 @@ type Repository struct {
 	AddressRepository IAddressRepository
 	StoreRepository   IStoreRepository
 	OtpRepository     IOtpRepository
+	ProductRepository IProductRepository
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -16,6 +17,7 @@ func NewRepository(db *gorm.DB) *Repository {
 		CartRepository:    NewCartRepository(db),
 		AddressRepository: NewAddressRepository(db),
 		StoreRepository:   NewStoreRepository(db),
+		ProductRepository: NewProductRepository(db),
 		OtpRepository:     NewOtpRepository(db),
 	}
 }

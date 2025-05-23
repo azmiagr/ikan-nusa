@@ -31,7 +31,7 @@ func (u *UserRepository) CreateUser(tx *gorm.DB, user *entity.User) (*entity.Use
 
 func (u *UserRepository) GetUser(param model.UserParam) (*entity.User, error) {
 	user := entity.User{}
-	err := u.db.Debug().Preload("Addresses.District.City.Province").Where(&param).First(&user).Error
+	err := u.db.Debug().Preload("Addresses.District.City.Province").Preload("Store").Where(&param).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
