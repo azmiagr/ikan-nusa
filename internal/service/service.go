@@ -8,13 +8,15 @@ import (
 )
 
 type Service struct {
-	UserService    IUserService
-	ProductService IProductService
+	UserService      IUserService
+	ProductService   IProductService
+	CartItemsService ICartItemsService
 }
 
 func NewService(repository *repository.Repository, bcrypt bcrypt.Interface, jwtAuth jwt.Interface, supabase supabase.Interface) *Service {
 	return &Service{
-		UserService:    NewUserService(repository.UserRepository, repository.CartRepository, repository.AddressRepository, repository.OtpRepository, repository.StoreRepository, bcrypt, jwtAuth, supabase),
-		ProductService: NewProductService(repository.ProductRepository, repository.StoreRepository),
+		UserService:      NewUserService(repository.UserRepository, repository.CartRepository, repository.AddressRepository, repository.OtpRepository, repository.StoreRepository, bcrypt, jwtAuth, supabase),
+		ProductService:   NewProductService(repository.ProductRepository, repository.StoreRepository),
+		CartItemsService: NewCartItemsService(repository.UserRepository, repository.CartItemsRepository, repository.CartRepository, repository.ProductRepository, repository.StoreRepository),
 	}
 }
