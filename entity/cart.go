@@ -11,4 +11,6 @@ type Cart struct {
 	UserID    uuid.UUID `json:"user_id"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime"`
+
+	CartItems []CartItems `json:"cart_items" gorm:"foreignKey:CartID"`
 }
