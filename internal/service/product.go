@@ -16,6 +16,7 @@ type IProductService interface {
 	GetProductsByCategory(category string) ([]*model.GetProductsByCategoryResponse, error)
 	GetProductsDetail(productID int) (*model.GetProductsDetailResponse, error)
 	GetProductsByName(productName string) ([]*model.GetproductsByNameResponse, error)
+	GetAllProducts() ([]*model.GetAllProductsResponse, error)
 }
 
 type ProductService struct {
@@ -169,4 +170,34 @@ func (p *ProductService) GetProductsByName(productName string) ([]*model.Getprod
 	}
 
 	return res, nil
+}
+
+func (p *ProductService) GetAllProducts() ([]*model.GetAllProductsResponse, error) {
+	tx := p.db.Begin()
+	defer tx.Rollback()
+
+	var res []*model.GetAllProductsResponse
+
+	products, err := p.ProductRepository.GetAllProducts()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range products {
+		store, err := p.StoreRepository.GetStore(tx, model.StoreParam{
+			StoreID: v.StoreID,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, &model.GetAllProductsResponse{
+			ProductID:   v.ProductID,
+			ProductName: v.ProductName,
+			Price:       v.Price,
+			StoreName:   store.StoreName,
+		})
+	}
+
+	return res, err
 }
