@@ -40,3 +40,10 @@ type UserLoginParam struct {
 type LoginResponse struct {
 	Token string `json:"token"`
 }
+
+type GetUserAddresses struct {
+	DistrictName string `json:"district_name"`
+	CityName     string `json:"city_name"`
+	ProvinceName string `json:"province_name"`
+	PostalCode   string `json:"postal_code"`
+}
