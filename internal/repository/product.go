@@ -2,6 +2,7 @@ package repository
 
 import (
 	"ikan-nusa/entity"
+	"ikan-nusa/model"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -14,6 +15,7 @@ type IProductRepository interface {
 	GetAllProducts() ([]*entity.Product, error)
 	GetProductsByStoreID(storeID uuid.UUID) ([]*entity.Product, error)
 	GetProductsDetail(productID int) (*entity.Product, error)
+	GetProduct(param model.GetProductParam) (*entity.Product, error)
 	GetProductsByName(productName string) ([]*entity.Product, error)
 }
 
@@ -91,4 +93,14 @@ func (p *ProductRepository) GetProductsByName(productName string) ([]*entity.Pro
 	}
 
 	return products, nil
+}
+
+func (p *ProductRepository) GetProduct(param model.GetProductParam) (*entity.Product, error) {
+	var product *entity.Product
+	err := p.db.Debug().Where(&param).Find(&product).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return product, nil
 }
