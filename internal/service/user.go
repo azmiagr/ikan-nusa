@@ -24,6 +24,7 @@ type IUserService interface {
 	VerifyUser(param model.VerifyUser) error
 	RegisterStore(userID uuid.UUID, param model.RegisterStoreParam) (*model.RegisterStoreResponse, error)
 	Login(param model.UserLoginParam) (*model.LoginResponse, error)
+	GetUserAddresses(param model.UserParam) ([]*model.GetUserAddresses, error)
 	GetUser(param model.UserParam) (*entity.User, error)
 }
 
@@ -278,6 +279,28 @@ func (u *UserService) RegisterStore(userID uuid.UUID, param model.RegisterStoreP
 	res := &model.RegisterStoreResponse{
 		StoreName:        store.StoreName,
 		StoreDescription: store.StoreDescription,
+	}
+
+	return res, nil
+}
+
+func (u *UserService) GetUserAddresses(param model.UserParam) ([]*model.GetUserAddresses, error) {
+	var res []*model.GetUserAddresses
+
+	user, err := u.UserRepository.GetUser(model.UserParam{
+		UserID: param.UserID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range user.Addresses {
+		res = append(res, &model.GetUserAddresses{
+			DistrictName: v.District.DistrictName,
+			CityName:     v.District.City.CityName,
+			ProvinceName: v.District.City.Province.ProvinceName,
+			PostalCode:   v.PostalCode,
+		})
 	}
 
 	return res, nil

@@ -120,3 +120,17 @@ func (r *Rest) RegisterStore(c *gin.Context) {
 	response.Success(c, http.StatusCreated, "success register new store", res)
 
 }
+
+func (r *Rest) GetUserAddresses(c *gin.Context) {
+	user := c.MustGet("user").(*entity.User)
+
+	res, err := r.service.UserService.GetUserAddresses(model.UserParam{
+		UserID: user.UserID,
+	})
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "failed to get user address", err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "success get user addresses", res)
+}
