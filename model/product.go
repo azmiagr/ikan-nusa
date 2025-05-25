@@ -35,3 +35,10 @@ type GetproductsByNameResponse struct {
 	Price       float64 `json:"price"`
 	StoreName   string  `json:"store_name"`
 }
+
+type GetAllProductsResponse struct {
+	ProductID   int     `json:"product_id"`
+	ProductName string  `json:"product_name"`
+	Price       float64 `json:"price"`
+	StoreName   string  `json:"store_name"`
+}
