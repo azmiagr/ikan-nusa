@@ -1,5 +1,7 @@
 package model
 
+import "github.com/google/uuid"
+
 type AddProduct struct {
 	ProductName        string  `json:"product_name"`
 	ProductDescription string  `json:"product_description"`
@@ -41,4 +43,9 @@ type GetAllProductsResponse struct {
 	ProductName string  `json:"product_name"`
 	Price       float64 `json:"price"`
 	StoreName   string  `json:"store_name"`
+}
+
+type GetProductParam struct {
+	ProductID int       `json:"-"`
+	StoreID   uuid.UUID `json:"-"`
 }
