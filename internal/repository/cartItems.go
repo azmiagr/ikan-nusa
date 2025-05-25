@@ -11,6 +11,7 @@ type ICartItemsRepository interface {
 	UpdateCartItems(tx *gorm.DB, cartItems *entity.CartItems) (*entity.CartItems, error)
 	GetCartItemsByCartID(tx *gorm.DB, cartID int) ([]*entity.CartItems, error)
 	GetCartItemsByProductID(tx *gorm.DB, productID int) (*entity.CartItems, error)
+	DeleteCartItems(tx *gorm.DB, cartItems *entity.CartItems) error
 }
 
 type CartItemsRepository struct {
@@ -57,4 +58,13 @@ func (ci *CartItemsRepository) GetCartItemsByProductID(tx *gorm.DB, productID in
 	}
 
 	return cartItems, nil
+}
+
+func (ci *CartItemsRepository) DeleteCartItems(tx *gorm.DB, cartItems *entity.CartItems) error {
+	err := tx.Debug().Delete(&cartItems).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
