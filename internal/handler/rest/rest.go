@@ -42,6 +42,7 @@ func (r *Rest) MountEndpoint() {
 	store.GET("/products/:category", r.GetProductsByCategory)
 	store.GET("/products/detail/:product_id", r.GetProductsDetail)
 	store.GET("/products", r.GetProductsByName)
+	store.GET("/all-products", r.GetAllProducts)
 	store.POST("/add-product", r.AddProduct)
 
 }
