@@ -13,5 +13,6 @@ type User struct {
 	Store     Store     `json:"store" gorm:"foreignKey:UserID"`
 	Cart      Cart      `json:"cart" gorm:"foreignKey:UserID"`
 	Addresses []Address `json:"addresses" gorm:"foreignKey:UserID"`
+	Reviews   []Review  `json:"reviews" gorm:"foreignKey:UserID"`
 	OtpCode   []OtpCode `json:"otp_code" gorm:"foreignKey:UserID"`
 }
