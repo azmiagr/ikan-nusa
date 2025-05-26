@@ -12,11 +12,12 @@ type Product struct {
 	ProductDescription string    `json:"product_description" gorm:"type:text;not null"`
 	Price              float64   `json:"price" gorm:"type:decimal;not null"`
 	Stock              int       `json:"stock" gorm:"type:int;not null"`
-	Category           string    `json:"category" gorm:"type:enum('air tawar', 'air laut', 'air payau');"`
+	Category           string    `json:"category" gorm:"type:enum('air tawar', 'air laut', 'lain-lain');"`
 	ImageURL           string    `json:"image_url" gorm:"text"`
 	CreatedAt          time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt          time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 	StoreID            uuid.UUID `json:"store_id"`
 
+	Reviews   []Review    `json:"reviews" gorm:"foreignKey:ProductID"`
 	CartItems []CartItems `json:"cart_items" gorm:"foreignKey:ProductID"`
 }
