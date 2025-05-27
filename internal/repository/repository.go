@@ -10,6 +10,7 @@ type Repository struct {
 	OtpRepository       IOtpRepository
 	ProductRepository   IProductRepository
 	CartItemsRepository ICartItemsRepository
+	ReviewRepository    IReviewRepository
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -21,5 +22,6 @@ func NewRepository(db *gorm.DB) *Repository {
 		ProductRepository:   NewProductRepository(db),
 		OtpRepository:       NewOtpRepository(db),
 		CartItemsRepository: NewCartItemsRepository(db),
+		ReviewRepository:    NewReviewRepository(db),
 	}
 }
