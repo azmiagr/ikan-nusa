@@ -85,3 +85,26 @@ func (r *Rest) GetAllProducts(c *gin.Context) {
 
 	response.Success(c, http.StatusOK, "success to get all products", res)
 }
+
+func (r *Rest) UploadPhoto(c *gin.Context) {
+	photo, err := c.FormFile("photo")
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "failed to upload photo", err)
+		return
+	}
+
+	productID := c.Param("product_id")
+	idInt, err := strconv.Atoi(productID)
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "invalid product id", err)
+		return
+	}
+
+	res, err := r.service.ProductService.UploadPhoto(idInt, photo)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "failed to update photo", err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "success to update photo", res)
+}
