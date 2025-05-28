@@ -6,6 +6,8 @@ import (
 	"ikan-nusa/internal/repository"
 	"ikan-nusa/model"
 	"ikan-nusa/pkg/database/mariadb"
+	"ikan-nusa/pkg/supabase"
+	"mime/multipart"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -17,19 +19,22 @@ type IProductService interface {
 	GetProductsDetail(productID int) (*model.GetProductsDetailResponse, error)
 	GetProductsByName(productName string) ([]*model.GetproductsByNameResponse, error)
 	GetAllProducts() ([]*model.GetAllProductsResponse, error)
+	UploadPhoto(productID int, file *multipart.FileHeader) (string, error)
 }
 
 type ProductService struct {
 	db                *gorm.DB
 	ProductRepository repository.IProductRepository
 	StoreRepository   repository.IStoreRepository
+	Supabase          supabase.Interface
 }
 
-func NewProductService(productRepository repository.IProductRepository, storeRepository repository.IStoreRepository) IProductService {
+func NewProductService(productRepository repository.IProductRepository, storeRepository repository.IStoreRepository, supabase supabase.Interface) IProductService {
 	return &ProductService{
 		db:                mariadb.Connection,
 		ProductRepository: productRepository,
 		StoreRepository:   storeRepository,
+		Supabase:          supabase,
 	}
 }
 
@@ -200,4 +205,35 @@ func (p *ProductService) GetAllProducts() ([]*model.GetAllProductsResponse, erro
 	}
 
 	return res, err
+}
+
+func (p *ProductService) UploadPhoto(productID int, file *multipart.FileHeader) (string, error) {
+	tx := p.db.Begin()
+	defer tx.Rollback()
+
+	product, err := p.ProductRepository.GetProduct(model.GetProductParam{
+		ProductID: productID,
+	})
+	if err != nil {
+		return "", errors.New("product not found")
+	}
+
+	photoURL, err := p.Supabase.UploadFile(file)
+	if err != nil {
+		return "", err
+	}
+
+	product.ImageURL = photoURL
+
+	_, err = p.ProductRepository.UpdateProduct(tx, product)
+	if err != nil {
+		return "", err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return "", err
+	}
+
+	return photoURL, nil
 }
