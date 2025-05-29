@@ -25,6 +25,7 @@ func NewRest(service *service.Service, middleware middleware.Interface) *Rest {
 
 func (r *Rest) MountEndpoint() {
 	baseURL := r.router.Group("/api/v1")
+	baseURL.GET("/product-types", r.GetAllTypes)
 
 	auth := baseURL.Group("/auth")
 	auth.POST("/register", r.Register)
