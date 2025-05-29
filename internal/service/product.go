@@ -57,6 +57,7 @@ func (p *ProductService) AddProduct(userID uuid.UUID, param *model.AddProduct) (
 		Stock:              param.Stock,
 		Category:           param.Category,
 		StoreID:            store.StoreID,
+		ProductTypeID:      param.ProductTypeID,
 	}
 
 	_, err = p.ProductRepository.CreateProduct(tx, product)
