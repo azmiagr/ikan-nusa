@@ -47,3 +47,13 @@ type GetUserAddresses struct {
 	ProvinceName string `json:"province_name"`
 	PostalCode   string `json:"postal_code"`
 }
+
+type GetUserCartItemsResponse struct {
+	CartItemsID int     `json:"cart_items_id"`
+	ProductID   int     `json:"product_id"`
+	StoreName   string  `json:"store_name"`
+	ImageURL    string  `json:"image_url"`
+	ProductName string  `json:"product_name"`
+	Price       float64 `json:"price"`
+	Quantity    int     `json:"quantity"`
+}
