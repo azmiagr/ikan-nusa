@@ -19,6 +19,7 @@ type IProductService interface {
 	GetProductsDetail(productID int) (*model.GetProductsDetailResponse, error)
 	GetProductsByName(productName string) ([]*model.GetproductsByNameResponse, error)
 	GetAllProducts() ([]*model.GetAllProductsResponse, error)
+	GetProductsByType(typeID int) ([]*model.GetProductsByTypeResponse, error)
 	UploadPhoto(productID int, file *multipart.FileHeader) (string, error)
 }
 
@@ -240,4 +241,35 @@ func (p *ProductService) UploadPhoto(productID int, file *multipart.FileHeader) 
 	}
 
 	return photoURL, nil
+}
+
+func (p *ProductService) GetProductsByType(typeID int) ([]*model.GetProductsByTypeResponse, error) {
+	tx := p.db.Begin()
+	defer tx.Rollback()
+
+	var res []*model.GetProductsByTypeResponse
+
+	product, err := p.ProductRepository.GetProductsByType(typeID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range product {
+		store, err := p.StoreRepository.GetStore(tx, model.StoreParam{
+			StoreID: v.StoreID,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, &model.GetProductsByTypeResponse{
+			ProductID:   v.ProductID,
+			ProductName: v.ProductName,
+			Price:       v.Price,
+			StoreName:   store.StoreName,
+			ImageURL:    v.ImageURL,
+		})
+	}
+
+	return res, nil
 }
