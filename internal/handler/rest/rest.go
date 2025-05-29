@@ -28,9 +28,10 @@ func (r *Rest) MountEndpoint() {
 
 	products := baseURL.Group("/products")
 	products.GET("/products-types", r.GetAllTypes)
-	products.GET("/:category", r.GetProductsByCategory)
-	products.GET("/:product_type_id", r.GetProductsByType)
+	products.GET("/category/:category", r.GetProductsByCategory)
+	products.GET("/type/:product_type_id", r.GetProductsByType)
 	products.GET("/detail/:product_id", r.GetProductsDetail)
+	products.GET("/all", r.GetAllProducts)
 	products.GET("", r.GetProductsByName)
 
 	auth := baseURL.Group("/auth")
@@ -48,10 +49,6 @@ func (r *Rest) MountEndpoint() {
 
 	store := baseURL.Group("/stores")
 	store.Use(r.middleware.AuthenticateUser)
-	store.GET("/products/:category", r.GetProductsByCategory)
-	store.GET("/products/detail/:product_id", r.GetProductsDetail)
-	store.GET("/products", r.GetProductsByName)
-	store.GET("/all-products", r.GetAllProducts)
 	store.POST("/add-product", r.AddProduct)
 	store.POST("/upload-photo/:product_id", r.UploadPhoto)
 
