@@ -47,6 +47,7 @@ func (r *Rest) MountEndpoint() {
 	user.POST("/register-store", r.RegisterStore)
 	user.POST("/add-to-cart", r.AddToCart)
 	user.POST("/review", r.AddReview)
+	user.DELETE("/delete-cart-items/:cart_items_id", r.DeleteFromCart)
 
 	store := baseURL.Group("/stores")
 	store.Use(r.middleware.AuthenticateUser)
