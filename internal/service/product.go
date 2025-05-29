@@ -98,6 +98,7 @@ func (p *ProductService) GetProductsByCategory(category string) ([]*model.GetPro
 			ProductID:   v.ProductID,
 			ProductName: v.ProductName,
 			Price:       v.Price,
+			ImageURL:    v.ImageURL,
 			StoreName:   store.StoreName,
 		})
 	}
@@ -135,6 +136,7 @@ func (p *ProductService) GetProductsDetail(productID int) (*model.GetProductsDet
 		Stock:       product.Stock,
 		Description: product.ProductDescription,
 		Category:    product.Category,
+		ImageURL:    product.ImageURL,
 		StoreName:   store.StoreName,
 	}
 
@@ -170,6 +172,7 @@ func (p *ProductService) GetProductsByName(productName string) ([]*model.Getprod
 			ProductID:   v.ProductID,
 			ProductName: v.ProductName,
 			Price:       v.Price,
+			ImageURL:    v.ImageURL,
 			StoreName:   store.StoreName,
 		})
 	}
@@ -201,6 +204,7 @@ func (p *ProductService) GetAllProducts() ([]*model.GetAllProductsResponse, erro
 			ProductName: v.ProductName,
 			Price:       v.Price,
 			StoreName:   store.StoreName,
+			ImageURL:    v.ImageURL,
 		})
 	}
 
