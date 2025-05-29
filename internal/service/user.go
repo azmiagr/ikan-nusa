@@ -25,32 +25,37 @@ type IUserService interface {
 	RegisterStore(userID uuid.UUID, param model.RegisterStoreParam) (*model.RegisterStoreResponse, error)
 	Login(param model.UserLoginParam) (*model.LoginResponse, error)
 	GetUserAddresses(param model.UserParam) ([]*model.GetUserAddresses, error)
+	GetUserCartItems(userID uuid.UUID) ([]*model.GetUserCartItemsResponse, error)
 	GetUser(param model.UserParam) (*entity.User, error)
 }
 
 type UserService struct {
-	db                *gorm.DB
-	UserRepository    repository.IUserRepository
-	CartRepository    repository.ICartRepository
-	AddressRepository repository.IAddressRepository
-	StoreRepository   repository.IStoreRepository
-	OtpRepository     repository.IOtpRepository
-	BCrypt            bcrypt.Interface
-	JwtAuth           jwt.Interface
-	Supabase          supabase.Interface
+	db                  *gorm.DB
+	UserRepository      repository.IUserRepository
+	CartRepository      repository.ICartRepository
+	AddressRepository   repository.IAddressRepository
+	StoreRepository     repository.IStoreRepository
+	ProductRepository   repository.IProductRepository
+	CartItemsRepository repository.ICartItemsRepository
+	OtpRepository       repository.IOtpRepository
+	BCrypt              bcrypt.Interface
+	JwtAuth             jwt.Interface
+	Supabase            supabase.Interface
 }
 
-func NewUserService(userRepository repository.IUserRepository, cartRepository repository.ICartRepository, addressRepository repository.IAddressRepository, otpRepository repository.IOtpRepository, storeRepository repository.IStoreRepository, bcrypt bcrypt.Interface, jwtAuth jwt.Interface, supabase supabase.Interface) IUserService {
+func NewUserService(userRepository repository.IUserRepository, cartRepository repository.ICartRepository, addressRepository repository.IAddressRepository, otpRepository repository.IOtpRepository, storeRepository repository.IStoreRepository, productRepository repository.IProductRepository, cartItemsRepository repository.ICartItemsRepository, bcrypt bcrypt.Interface, jwtAuth jwt.Interface, supabase supabase.Interface) IUserService {
 	return &UserService{
-		db:                mariadb.Connection,
-		UserRepository:    userRepository,
-		CartRepository:    cartRepository,
-		AddressRepository: addressRepository,
-		StoreRepository:   storeRepository,
-		OtpRepository:     otpRepository,
-		BCrypt:            bcrypt,
-		JwtAuth:           jwtAuth,
-		Supabase:          supabase,
+		db:                  mariadb.Connection,
+		UserRepository:      userRepository,
+		CartRepository:      cartRepository,
+		AddressRepository:   addressRepository,
+		StoreRepository:     storeRepository,
+		OtpRepository:       otpRepository,
+		ProductRepository:   productRepository,
+		CartItemsRepository: cartItemsRepository,
+		BCrypt:              bcrypt,
+		JwtAuth:             jwtAuth,
+		Supabase:            supabase,
 	}
 }
 
@@ -301,6 +306,63 @@ func (u *UserService) GetUserAddresses(param model.UserParam) ([]*model.GetUserA
 			ProvinceName: v.District.City.Province.ProvinceName,
 			PostalCode:   v.PostalCode,
 		})
+	}
+
+	return res, nil
+}
+
+func (u *UserService) GetUserCartItems(userID uuid.UUID) ([]*model.GetUserCartItemsResponse, error) {
+	var res []*model.GetUserCartItemsResponse
+
+	tx := u.db.Begin()
+	defer tx.Rollback()
+
+	user, err := u.UserRepository.GetUser(model.UserParam{
+		UserID: userID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	cart, err := u.CartRepository.GetCartByUserID(tx, user.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	cartItems, err := u.CartItemsRepository.GetCartItemsByCartID(tx, cart.CartID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range cartItems {
+		products, err := u.ProductRepository.GetProduct(model.GetProductParam{
+			ProductID: v.ProductID,
+		})
+		if err != nil {
+			return nil, errors.New("product did'nt exist")
+		}
+
+		store, err := u.StoreRepository.GetStore(tx, model.StoreParam{
+			StoreID: products.StoreID,
+		})
+		if err != nil {
+			return nil, errors.New("store didn'nt exist")
+		}
+
+		res = append(res, &model.GetUserCartItemsResponse{
+			CartItemsID: v.CartItemsID,
+			ProductID:   products.ProductID,
+			StoreName:   store.StoreName,
+			ImageURL:    products.ImageURL,
+			ProductName: products.ProductName,
+			Price:       v.Price,
+			Quantity:    v.Quantity,
+		})
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return nil, err
 	}
 
 	return res, nil

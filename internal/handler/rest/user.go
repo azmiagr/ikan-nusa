@@ -134,3 +134,15 @@ func (r *Rest) GetUserAddresses(c *gin.Context) {
 
 	response.Success(c, http.StatusOK, "success get user addresses", res)
 }
+
+func (r *Rest) GetUserCartItems(c *gin.Context) {
+	user := c.MustGet("user").(*entity.User)
+
+	res, err := r.service.UserService.GetUserCartItems(user.UserID)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "failed to get user cart items", err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "success to get user cart items", res)
+}
