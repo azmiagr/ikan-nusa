@@ -5,6 +5,7 @@ import (
 	"ikan-nusa/model"
 	"ikan-nusa/pkg/response"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -41,4 +42,21 @@ func (r *Rest) AddToCart(c *gin.Context) {
 	}
 
 	response.Success(c, http.StatusCreated, "success to add product to cart", res)
+}
+
+func (r *Rest) DeleteFromCart(c *gin.Context) {
+	cartItemsID := c.Param("cart_items_id")
+	idInt, err := strconv.Atoi(cartItemsID)
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "invalid cart items id", err)
+		return
+	}
+
+	err = r.service.CartItemsService.DeleteFromCart(idInt)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "failed to delete cart items", err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "successfully deleted cart item", nil)
 }

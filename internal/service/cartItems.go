@@ -13,6 +13,7 @@ import (
 
 type ICartItemsService interface {
 	AddToCart(storeID uuid.UUID, cartID int, param *model.AddToCartParam) (*model.AddToCartResponse, error)
+	DeleteFromCart(cartItemsID int) error
 }
 
 type CartItemsService struct {
@@ -105,4 +106,26 @@ func (ci *CartItemsService) AddToCart(storeID uuid.UUID, cartID int, param *mode
 
 	return res, nil
 
+}
+
+func (ci *CartItemsService) DeleteFromCart(cartItemsID int) error {
+	tx := ci.db.Begin()
+	defer tx.Rollback()
+
+	cartItems, err := ci.CartItemsRepository.GetCartItemsByID(tx, cartItemsID)
+	if err != nil {
+		return errors.New("cart items did'nt exist")
+	}
+
+	err = ci.CartItemsRepository.DeleteCartItems(tx, cartItems)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
