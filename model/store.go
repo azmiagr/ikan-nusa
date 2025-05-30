@@ -17,3 +17,8 @@ type RegisterStoreResponse struct {
 	StoreName        string `json:"store_name"`
 	StoreDescription string `json:"store_description"`
 }
+
+type GetStoreDetailResponse struct {
+	StoreName string `json:"store_name"`
+	CityName  string `json:"city_name"`
+}
