@@ -12,6 +12,7 @@ type Service struct {
 	ProductService     IProductService
 	CartItemsService   ICartItemsService
 	ReviewService      IReviewService
+	StoreService       IStoreService
 	ProductTypeService IProductTypeService
 }
 
@@ -22,5 +23,6 @@ func NewService(repository *repository.Repository, bcrypt bcrypt.Interface, jwtA
 		CartItemsService:   NewCartItemsService(repository.UserRepository, repository.CartItemsRepository, repository.CartRepository, repository.ProductRepository, repository.StoreRepository),
 		ReviewService:      NewReviewService(repository.ReviewRepository, repository.UserRepository),
 		ProductTypeService: NewProductTypeService(repository.ProductTypeRepository),
+		StoreService:       NewStoreService(repository.StoreRepository, repository.UserRepository, repository.AddressRepository),
 	}
 }
