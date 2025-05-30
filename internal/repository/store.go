@@ -11,6 +11,7 @@ type IStoreRepository interface {
 	CreateStore(tx *gorm.DB, store *entity.Store) (*entity.Store, error)
 	UpdateStore(tx *gorm.DB, store *entity.Store) (*entity.Store, error)
 	GetStore(tx *gorm.DB, param model.StoreParam) (*entity.Store, error)
+	GetAllStore() ([]*entity.Store, error)
 }
 
 type StoreRepository struct {
@@ -47,4 +48,14 @@ func (s *StoreRepository) GetStore(tx *gorm.DB, param model.StoreParam) (*entity
 	}
 
 	return store, nil
+}
+
+func (s *StoreRepository) GetAllStore() ([]*entity.Store, error) {
+	var stores []*entity.Store
+	err := s.db.Debug().Find(&stores).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return stores, nil
 }
