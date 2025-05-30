@@ -26,6 +26,7 @@ type IUserService interface {
 	Login(param model.UserLoginParam) (*model.LoginResponse, error)
 	GetUserAddresses(param model.UserParam) ([]*model.GetUserAddresses, error)
 	GetUserCartItems(userID uuid.UUID) ([]*model.GetUserCartItemsResponse, error)
+	GetNearbyProducts(userID uuid.UUID) ([]*model.GetAllProductsResponse, error)
 	GetUser(param model.UserParam) (*entity.User, error)
 }
 
@@ -132,6 +133,7 @@ func (u *UserService) AddAddressAfterRegister(param model.AddAddressAfterRegiste
 	}
 
 	address := &entity.Address{
+		AddressID:     uuid.New(),
 		RecipentName:  user.Username,
 		PostalCode:    param.PostalCode,
 		AddressDetail: param.AddressDetail,
@@ -230,7 +232,7 @@ func (u *UserService) Login(param model.UserLoginParam) (*model.LoginResponse, e
 		Email: param.Email,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.New("email or password is wrong")
 	}
 
 	err = u.BCrypt.CompareAndHashPassword(user.Password, param.Password)
@@ -357,6 +359,56 @@ func (u *UserService) GetUserCartItems(userID uuid.UUID) ([]*model.GetUserCartIt
 			ProductName: products.ProductName,
 			Price:       v.Price,
 			Quantity:    v.Quantity,
+		})
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (u *UserService) GetNearbyProducts(userID uuid.UUID) ([]*model.GetAllProductsResponse, error) {
+	var (
+		districtID []int
+		res        []*model.GetAllProductsResponse
+	)
+
+	tx := u.db.Begin()
+	defer tx.Rollback()
+
+	user, err := u.UserRepository.GetUser(model.UserParam{
+		UserID: userID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range user.Addresses {
+		districtID = append(districtID, v.DistrictID)
+	}
+
+	products, err := u.ProductRepository.GetProductsByDistricts(districtID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range products {
+		store, err := u.StoreRepository.GetStore(tx, model.StoreParam{
+			StoreID: v.StoreID,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, &model.GetAllProductsResponse{
+			ProductID:   v.ProductID,
+			ProductName: v.ProductName,
+			Price:       v.Price,
+			StoreName:   store.StoreName,
+			ImageURL:    v.ImageURL,
 		})
 	}
 
