@@ -18,6 +18,7 @@ type IProductRepository interface {
 	GetProduct(param model.GetProductParam) (*entity.Product, error)
 	GetProductsByName(productName string) ([]*entity.Product, error)
 	GetProductsByType(typeID int) ([]*entity.Product, error)
+	GetProductsByDistricts(districtIDs []int) ([]*entity.Product, error)
 }
 
 type ProductRepository struct {
@@ -114,4 +115,20 @@ func (p *ProductRepository) GetProductsByType(typeID int) ([]*entity.Product, er
 	}
 
 	return products, nil
+}
+
+func (p *ProductRepository) GetProductsByDistricts(districtIDs []int) ([]*entity.Product, error) {
+	var products []*entity.Product
+	err := p.db.
+		Joins("JOIN stores ON products.store_id = stores.store_id").
+		Joins("JOIN users ON stores.user_id = users.user_id").
+		Joins("JOIN addresses ON users.user_id = addresses.user_id").
+		Where("addresses.district_id IN ?", districtIDs).
+		Where("products.stock > 0").
+		Find(&products).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return products, err
 }
