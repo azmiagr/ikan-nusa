@@ -86,6 +86,7 @@ func (r *Rest) Login(c *gin.Context) {
 	if err != nil {
 		if err.Error() == "email or password is wrong" {
 			response.Error(c, http.StatusBadRequest, "email or password is wrong", err)
+			return
 		} else {
 			response.Error(c, http.StatusInternalServerError, "failed to login user", err)
 			return
@@ -145,4 +146,16 @@ func (r *Rest) GetUserCartItems(c *gin.Context) {
 	}
 
 	response.Success(c, http.StatusOK, "success to get user cart items", res)
+}
+
+func (r *Rest) GetNearbyProducts(c *gin.Context) {
+	user := c.MustGet("user").(*entity.User)
+
+	res, err := r.service.UserService.GetNearbyProducts(user.UserID)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "failed to get nearby projects", err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "success to get nearby products", res)
 }
