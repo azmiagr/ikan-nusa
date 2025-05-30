@@ -45,6 +45,7 @@ func (r *Rest) MountEndpoint() {
 	user.Use(r.middleware.AuthenticateUser)
 	user.GET("/address", r.GetUserAddresses)
 	user.GET("/my-cart", r.GetUserCartItems)
+	user.GET("/nearby-products", r.GetNearbyProducts)
 	user.POST("/register-store", r.RegisterStore)
 	user.POST("/add-to-cart", r.AddToCart)
 	user.POST("/review", r.AddReview)
