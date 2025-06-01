@@ -18,6 +18,7 @@ type IProductRepository interface {
 	GetProduct(param model.GetProductParam) (*entity.Product, error)
 	GetProductsByName(productName string) ([]*entity.Product, error)
 	GetProductsByType(typeID int) ([]*entity.Product, error)
+	UpdateProductStock(tx *gorm.DB, param *model.UpdateProductParam) error
 	GetProductsByDistricts(districtIDs []int) ([]*entity.Product, error)
 }
 
@@ -45,6 +46,15 @@ func (p *ProductRepository) UpdateProduct(tx *gorm.DB, product *entity.Product) 
 	}
 
 	return product, nil
+}
+
+func (p *ProductRepository) UpdateProductStock(tx *gorm.DB, param *model.UpdateProductParam) error {
+	err := tx.Debug().Model(&entity.Product{}).Where("product_id = ?", param.ProductID).Update("stock", gorm.Expr("stock + ?", param.Quantity)).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p *ProductRepository) GetAllProducts() ([]*entity.Product, error) {
