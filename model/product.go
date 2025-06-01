@@ -62,3 +62,8 @@ type GetProductParam struct {
 	ProductID int       `json:"-"`
 	StoreID   uuid.UUID `json:"-"`
 }
+
+type UpdateProductParam struct {
+	ProductID int `json:"-"`
+	Quantity  int `json:"-"`
+}
