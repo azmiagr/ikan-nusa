@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"ikan-nusa/entity"
 	"ikan-nusa/internal/repository"
 	"ikan-nusa/model"
@@ -27,36 +28,39 @@ type IUserService interface {
 	GetUserAddresses(param model.UserParam) ([]*model.GetUserAddresses, error)
 	GetUserCartItems(userID uuid.UUID) ([]*model.GetUserCartItemsResponse, error)
 	GetNearbyProducts(userID uuid.UUID) ([]*model.GetAllProductsResponse, error)
+	Checkout(userID uuid.UUID, param *model.CheckoutRequest) (*model.CheckoutResponse, error)
 	GetUser(param model.UserParam) (*entity.User, error)
 }
 
 type UserService struct {
-	db                  *gorm.DB
-	UserRepository      repository.IUserRepository
-	CartRepository      repository.ICartRepository
-	AddressRepository   repository.IAddressRepository
-	StoreRepository     repository.IStoreRepository
-	ProductRepository   repository.IProductRepository
-	CartItemsRepository repository.ICartItemsRepository
-	OtpRepository       repository.IOtpRepository
-	BCrypt              bcrypt.Interface
-	JwtAuth             jwt.Interface
-	Supabase            supabase.Interface
+	db                    *gorm.DB
+	UserRepository        repository.IUserRepository
+	CartRepository        repository.ICartRepository
+	AddressRepository     repository.IAddressRepository
+	StoreRepository       repository.IStoreRepository
+	ProductRepository     repository.IProductRepository
+	CartItemsRepository   repository.ICartItemsRepository
+	TransactionRepository repository.ITransactionRepository
+	OtpRepository         repository.IOtpRepository
+	BCrypt                bcrypt.Interface
+	JwtAuth               jwt.Interface
+	Supabase              supabase.Interface
 }
 
-func NewUserService(userRepository repository.IUserRepository, cartRepository repository.ICartRepository, addressRepository repository.IAddressRepository, otpRepository repository.IOtpRepository, storeRepository repository.IStoreRepository, productRepository repository.IProductRepository, cartItemsRepository repository.ICartItemsRepository, bcrypt bcrypt.Interface, jwtAuth jwt.Interface, supabase supabase.Interface) IUserService {
+func NewUserService(userRepository repository.IUserRepository, cartRepository repository.ICartRepository, addressRepository repository.IAddressRepository, otpRepository repository.IOtpRepository, storeRepository repository.IStoreRepository, productRepository repository.IProductRepository, cartItemsRepository repository.ICartItemsRepository, transactionRepository repository.ITransactionRepository, bcrypt bcrypt.Interface, jwtAuth jwt.Interface, supabase supabase.Interface) IUserService {
 	return &UserService{
-		db:                  mariadb.Connection,
-		UserRepository:      userRepository,
-		CartRepository:      cartRepository,
-		AddressRepository:   addressRepository,
-		StoreRepository:     storeRepository,
-		OtpRepository:       otpRepository,
-		ProductRepository:   productRepository,
-		CartItemsRepository: cartItemsRepository,
-		BCrypt:              bcrypt,
-		JwtAuth:             jwtAuth,
-		Supabase:            supabase,
+		db:                    mariadb.Connection,
+		UserRepository:        userRepository,
+		CartRepository:        cartRepository,
+		AddressRepository:     addressRepository,
+		StoreRepository:       storeRepository,
+		OtpRepository:         otpRepository,
+		ProductRepository:     productRepository,
+		CartItemsRepository:   cartItemsRepository,
+		TransactionRepository: transactionRepository,
+		BCrypt:                bcrypt,
+		JwtAuth:               jwtAuth,
+		Supabase:              supabase,
 	}
 }
 
@@ -418,6 +422,129 @@ func (u *UserService) GetNearbyProducts(userID uuid.UUID) ([]*model.GetAllProduc
 	}
 
 	return res, nil
+}
+
+func (u *UserService) Checkout(userID uuid.UUID, param *model.CheckoutRequest) (*model.CheckoutResponse, error) {
+	var (
+		totalPrice       float64
+		transactionItems []*entity.TransactionItems
+		items            []model.CheckoutItemsResponse
+	)
+
+	tx := u.db.Begin()
+	defer tx.Rollback()
+
+	user, err := u.UserRepository.GetUser(model.UserParam{
+		UserID: userID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = u.CartRepository.GetCartByUserID(tx, user.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	cartItems, err := u.CartItemsRepository.GetSelectedCartItems(tx, param.CartItemsID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(cartItems) == 0 {
+		return nil, errors.New("no cart items founds")
+	}
+
+	for _, v := range cartItems {
+		product, err := u.ProductRepository.GetProduct(model.GetProductParam{
+			ProductID: v.ProductID,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		if product.Stock < v.Quantity {
+			return nil, fmt.Errorf("insufficient stock for product %s. Available: %d, Requested: %d",
+				product.ProductName, product.Stock, v.Quantity)
+		}
+
+		itemTotal := product.Price * float64(v.Quantity)
+		totalPrice += itemTotal
+
+		transactionItems = append(transactionItems, &entity.TransactionItems{
+			ProductID:      v.ProductID,
+			Quantity:       v.Quantity,
+			UnitPrice:      product.Price,
+			TotalUnitPrice: itemTotal,
+		})
+	}
+
+	transaction := &entity.Transaction{
+		TotalPrice: totalPrice,
+		Status:     "pending",
+		UserID:     user.UserID,
+	}
+
+	_, err = u.TransactionRepository.CreateTransaction(tx, transaction)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range transactionItems {
+		v.TransactionID = transaction.TransactionID
+		_, err = u.TransactionRepository.CreateTransactionItems(tx, v)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	for _, v := range cartItems {
+		err = u.ProductRepository.UpdateProductStock(tx, &model.UpdateProductParam{
+			ProductID: v.ProductID,
+			Quantity:  -v.Quantity,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = u.CartItemsRepository.DeleteSelectedCartItems(tx, param.CartItemsID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range transactionItems {
+		product, err := u.ProductRepository.GetProduct(model.GetProductParam{
+			ProductID: v.ProductID,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, model.CheckoutItemsResponse{
+			ProductID:   v.ProductID,
+			ProductName: product.ProductName,
+			Quantity:    v.Quantity,
+			UnitPrice:   v.UnitPrice,
+			TotalPrice:  v.TotalUnitPrice,
+		})
+	}
+
+	res := &model.CheckoutResponse{
+		TransactionID: transaction.TransactionID,
+		TotalPrice:    totalPrice,
+		Status:        transaction.Status,
+		Items:         items,
+		CreatedAt:     transaction.CreatedAt,
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+
 }
 
 func (u *UserService) GetUser(param model.UserParam) (*entity.User, error) {

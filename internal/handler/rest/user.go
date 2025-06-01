@@ -159,3 +159,27 @@ func (r *Rest) GetNearbyProducts(c *gin.Context) {
 
 	response.Success(c, http.StatusOK, "success to get nearby products", res)
 }
+
+func (r *Rest) Checkout(c *gin.Context) {
+	user := c.MustGet("user").(*entity.User)
+
+	var param model.CheckoutRequest
+	err := c.ShouldBindJSON(&param)
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "failed to bind input", err)
+		return
+	}
+
+	res, err := r.service.UserService.Checkout(user.UserID, &param)
+	if err != nil {
+		if err.Error() == "no cart items founds" {
+			response.Error(c, http.StatusBadRequest, "failed to checkout", err)
+			return
+		} else {
+			response.Error(c, http.StatusInternalServerError, "failed to checkout", err)
+			return
+		}
+	}
+
+	response.Success(c, http.StatusOK, "success to checkout", res)
+}
