@@ -12,7 +12,9 @@ type ICartItemsRepository interface {
 	GetCartItemsByCartID(tx *gorm.DB, cartID int) ([]*entity.CartItems, error)
 	GetCartItemsByProductID(tx *gorm.DB, productID int) (*entity.CartItems, error)
 	GetCartItemsByID(tx *gorm.DB, cartItemsID int) (*entity.CartItems, error)
+	GetSelectedCartItems(tx *gorm.DB, cartItemsIDs []int) ([]*entity.CartItems, error)
 	DeleteCartItems(tx *gorm.DB, cartItems *entity.CartItems) error
+	DeleteSelectedCartItems(tx *gorm.DB, cartItemsIDs []int) error
 }
 
 type CartItemsRepository struct {
@@ -61,6 +63,16 @@ func (ci *CartItemsRepository) GetCartItemsByID(tx *gorm.DB, cartItemsID int) (*
 	return cartItems, nil
 }
 
+func (ci *CartItemsRepository) GetSelectedCartItems(tx *gorm.DB, cartItemsIDs []int) ([]*entity.CartItems, error) {
+	var cartItems []*entity.CartItems
+	err := tx.Debug().Where("cart_items_id IN ?", cartItemsIDs).Find(&cartItems).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return cartItems, nil
+}
+
 func (ci *CartItemsRepository) GetCartItemsByProductID(tx *gorm.DB, productID int) (*entity.CartItems, error) {
 	var cartItems *entity.CartItems
 	err := tx.Debug().Where("product_id = ?", productID).First(&cartItems).Error
@@ -73,6 +85,15 @@ func (ci *CartItemsRepository) GetCartItemsByProductID(tx *gorm.DB, productID in
 
 func (ci *CartItemsRepository) DeleteCartItems(tx *gorm.DB, cartItems *entity.CartItems) error {
 	err := tx.Debug().Delete(&cartItems).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ci *CartItemsRepository) DeleteSelectedCartItems(tx *gorm.DB, cartItemsIDs []int) error {
+	err := tx.Debug().Where("cart_items_id IN ?", cartItemsIDs).Delete(&entity.CartItems{}).Error
 	if err != nil {
 		return err
 	}
