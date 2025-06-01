@@ -14,5 +14,6 @@ type Store struct {
 	UpdatedAt        time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 	UserID           uuid.UUID `json:"user_id" `
 
-	Products []Product `json:"products" gorm:"foreignKey:StoreID"`
+	Products     []Product     `json:"products" gorm:"foreignKey:StoreID"`
+	Transactions []Transaction `json:"transactions" gorm:"foreignKey:StoreID"`
 }
