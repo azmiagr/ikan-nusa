@@ -19,6 +19,7 @@ type Product struct {
 	StoreID            uuid.UUID `json:"store_id"`
 	ProductTypeID      int       `json:"product_type_id"`
 
-	Reviews   []Review    `json:"reviews" gorm:"foreignKey:ProductID"`
-	CartItems []CartItems `json:"cart_items" gorm:"foreignKey:ProductID"`
+	Reviews          []Review           `json:"reviews" gorm:"foreignKey:ProductID"`
+	CartItems        []CartItems        `json:"cart_items" gorm:"foreignKey:ProductID"`
+	TransactionItems []TransactionItems `json:"transaction_items" gorm:"foreignKey:ProductID"`
 }
