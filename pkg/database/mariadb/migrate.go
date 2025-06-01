@@ -20,6 +20,8 @@ func Migrate(db *gorm.DB) error {
 		&entity.District{},
 		&entity.Address{},
 		&entity.CartItems{},
+		&entity.Transaction{},
+		&entity.TransactionItems{},
 	)
 	if err != nil {
 		return err
