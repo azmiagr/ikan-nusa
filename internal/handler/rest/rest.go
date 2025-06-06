@@ -25,6 +25,7 @@ func NewRest(service *service.Service, middleware middleware.Interface) *Rest {
 
 func (r *Rest) MountEndpoint() {
 	baseURL := r.router.Group("/api/v1")
+	baseURL.Use(r.middleware.Cors())
 	baseURL.GET("/store-details/:store_name", r.GetStoreDetail)
 
 	products := baseURL.Group("/products")
