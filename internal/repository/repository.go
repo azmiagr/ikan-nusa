@@ -13,6 +13,9 @@ type Repository struct {
 	ReviewRepository      IReviewRepository
 	ProductTypeRepository IProductTypeRepository
 	TransactionRepository ITransactionRepository
+	ProvinceRepository    IProvinceRepository
+	CityRepository        ICityRepository
+	DistrictRepository    IDistrictRepository
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -27,5 +30,8 @@ func NewRepository(db *gorm.DB) *Repository {
 		ReviewRepository:      NewReviewRepository(db),
 		ProductTypeRepository: NewProductTypeRepository(db),
 		TransactionRepository: NewTransactionRepository(db),
+		ProvinceRepository:    NewProvinceRepository(db),
+		CityRepository:        NewCityRepository(db),
+		DistrictRepository:    NewDistrictRepository(db),
 	}
 }
