@@ -14,6 +14,9 @@ type Service struct {
 	ReviewService      IReviewService
 	StoreService       IStoreService
 	ProductTypeService IProductTypeService
+	ProvinceService    IProvinceService
+	CityService        ICityService
+	DistrictService    IDistrictService
 }
 
 func NewService(repository *repository.Repository, bcrypt bcrypt.Interface, jwtAuth jwt.Interface, supabase supabase.Interface) *Service {
@@ -24,5 +27,8 @@ func NewService(repository *repository.Repository, bcrypt bcrypt.Interface, jwtA
 		ReviewService:      NewReviewService(repository.ReviewRepository, repository.UserRepository),
 		ProductTypeService: NewProductTypeService(repository.ProductTypeRepository),
 		StoreService:       NewStoreService(repository.StoreRepository, repository.UserRepository, repository.AddressRepository),
+		ProvinceService:    NewProvinceService(repository.ProvinceRepository),
+		CityService:        NewCityService(repository.CityRepository),
+		DistrictService:    NewDistrictService(repository.DistrictRepository),
 	}
 }
