@@ -57,3 +57,8 @@ type GetUserCartItemsResponse struct {
 	Price       float64 `json:"price"`
 	Quantity    int     `json:"quantity"`
 }
+
+type VerifyUserResponse struct {
+	Token    string `json:"token"`
+	Username string `json:"username"`
+}
