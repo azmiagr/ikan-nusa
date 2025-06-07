@@ -57,7 +57,7 @@ func (r *Rest) VerifyUser(c *gin.Context) {
 		return
 	}
 
-	err = r.service.UserService.VerifyUser(param)
+	res, err := r.service.UserService.VerifyUser(param)
 	if err != nil {
 		if err.Error() == "invalid otp code" {
 			response.Error(c, http.StatusUnauthorized, "invalid otp code", err)
@@ -71,7 +71,7 @@ func (r *Rest) VerifyUser(c *gin.Context) {
 		}
 	}
 
-	response.Success(c, http.StatusOK, "success verify user", nil)
+	response.Success(c, http.StatusOK, "success verify user", res)
 }
 
 func (r *Rest) Login(c *gin.Context) {
