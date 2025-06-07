@@ -22,7 +22,7 @@ import (
 type IUserService interface {
 	Register(param *model.UserRegister) (*model.UserRegisterResponse, error)
 	AddAddressAfterRegister(param model.AddAddressAfterRegisterParam) error
-	VerifyUser(param model.VerifyUser) error
+	VerifyUser(param model.VerifyUser) (*model.VerifyUserResponse, error)
 	RegisterStore(userID uuid.UUID, param model.RegisterStoreParam) (*model.RegisterStoreResponse, error)
 	Login(param model.UserLoginParam) (*model.LoginResponse, error)
 	GetUserAddresses(param model.UserParam) ([]*model.GetUserAddresses, error)
@@ -175,7 +175,7 @@ func (u *UserService) AddAddressAfterRegister(param model.AddAddressAfterRegiste
 	return nil
 }
 
-func (u *UserService) VerifyUser(param model.VerifyUser) error {
+func (u *UserService) VerifyUser(param model.VerifyUser) (*model.VerifyUserResponse, error) {
 	tx := u.db.Begin()
 	defer tx.Rollback()
 
@@ -183,47 +183,57 @@ func (u *UserService) VerifyUser(param model.VerifyUser) error {
 		UserID: param.UserID,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if otp.Code != param.OtpCode {
-		return errors.New("invalid otp code")
+		return nil, errors.New("invalid otp code")
 	}
 
 	expiredTime, err := strconv.Atoi(os.Getenv("EXPIRED_OTP"))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	expiredThreshold := time.Now().UTC().Add(-time.Duration(expiredTime) * time.Minute)
 	if otp.UpdatedAt.Before(expiredThreshold) {
-		return errors.New("otp expired")
+		return nil, errors.New("otp expired")
 	}
 
 	user, err := u.UserRepository.GetUser(model.UserParam{
 		UserID: param.UserID,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	user.StatusAccount = "active"
 	err = u.UserRepository.UpdateUser(tx, user)
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	token, err := u.JwtAuth.CreateJWTToken(user.UserID)
+	if err != nil {
+		return nil, err
 	}
 
 	err = u.OtpRepository.DeleteOtp(tx, otp)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = tx.Commit().Error
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	response := &model.VerifyUserResponse{
+		Username: user.Username,
+		Token:    token,
+	}
+
+	return response, nil
 }
 
 func (u *UserService) Login(param model.UserLoginParam) (*model.LoginResponse, error) {
