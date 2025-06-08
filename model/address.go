@@ -6,6 +6,11 @@ type AddressParam struct {
 	UserID uuid.UUID `json:"user_id"`
 }
 
+type GetProvinceResponse struct {
+	ProvinceID   int    `json:"province_id"`
+	ProvinceName string `json:"province_name"`
+}
+
 type GetCityResponse struct {
 	CityID   int    `json:"city_id"`
 	CityName string `json:"city_name"`
