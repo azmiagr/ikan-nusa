@@ -66,6 +66,9 @@ func (r *Rest) MountEndpoint() {
 func (r *Rest) Run() {
 	addr := os.Getenv("ADDRESS")
 	port := os.Getenv("PORT")
+	if port == "" {
+		port = "4000"
+	}
 
 	r.router.Run(fmt.Sprintf("%s:%s", addr, port))
 }
