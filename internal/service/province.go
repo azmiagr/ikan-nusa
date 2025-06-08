@@ -1,12 +1,12 @@
 package service
 
 import (
-	"ikan-nusa/entity"
 	"ikan-nusa/internal/repository"
+	"ikan-nusa/model"
 )
 
 type IProvinceService interface {
-	GetAllProvinces() ([]*entity.Province, error)
+	GetAllProvinces() ([]*model.GetProvinceResponse, error)
 }
 
 type ProvinceService struct {
@@ -19,11 +19,20 @@ func NewProvinceService(provinceRepository repository.IProvinceRepository) IProv
 	}
 }
 
-func (p *ProvinceService) GetAllProvinces() ([]*entity.Province, error) {
+func (p *ProvinceService) GetAllProvinces() ([]*model.GetProvinceResponse, error) {
+	var res []*model.GetProvinceResponse
+
 	provinces, err := p.ProvinceRepository.GetAllProvince()
 	if err != nil {
 		return nil, err
 	}
 
-	return provinces, nil
+	for _, v := range provinces {
+		res = append(res, &model.GetProvinceResponse{
+			ProvinceID:   v.ProvinceID,
+			ProvinceName: v.ProvinceName,
+		})
+	}
+
+	return res, nil
 }
