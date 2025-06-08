@@ -20,7 +20,7 @@ func NewDistrictRepository(db *gorm.DB) IDistrictRepository {
 
 func (d *DistrictRepository) GetAllDistricts() ([]*entity.District, error) {
 	var districts []*entity.District
-	err := d.db.Debug().Find(districts).Error
+	err := d.db.Debug().Find(&districts).Error
 	if err != nil {
 		return nil, err
 	}

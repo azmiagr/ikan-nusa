@@ -20,7 +20,7 @@ func NewCityRepository(db *gorm.DB) ICityRepository {
 
 func (c *CityRepository) GetAllCities() ([]*entity.City, error) {
 	var cities []*entity.City
-	err := c.db.Debug().Find(cities).Error
+	err := c.db.Debug().Find(&cities).Error
 	if err != nil {
 		return nil, err
 	}
