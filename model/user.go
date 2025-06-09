@@ -23,7 +23,8 @@ type UserRegisterResponse struct {
 type AddAddressAfterRegisterParam struct {
 	UserID        uuid.UUID `json:"user_id"`
 	DistrictID    int       `json:"district_id" binding:"required"`
-	PostalCode    string    `json:"postal_code" binding:"required"`
+	Label         string    `json:"label" binding:"required"`
+	Notes         string    `json:"notes" binding:"required"`
 	AddressDetail string    `json:"address_detail" binding:"required"`
 }
 
@@ -45,7 +46,7 @@ type GetUserAddresses struct {
 	DistrictName string `json:"district_name"`
 	CityName     string `json:"city_name"`
 	ProvinceName string `json:"province_name"`
-	PostalCode   string `json:"postal_code"`
+	Label        string `json:"label"`
 }
 
 type GetUserCartItemsResponse struct {
