@@ -139,7 +139,8 @@ func (u *UserService) AddAddressAfterRegister(param model.AddAddressAfterRegiste
 	address := &entity.Address{
 		AddressID:     uuid.New(),
 		RecipentName:  user.Username,
-		PostalCode:    param.PostalCode,
+		Label:         param.Label,
+		Notes:         param.Notes,
 		AddressDetail: param.AddressDetail,
 		DistrictID:    param.DistrictID,
 		UserID:        user.UserID,
@@ -320,7 +321,7 @@ func (u *UserService) GetUserAddresses(param model.UserParam) ([]*model.GetUserA
 			DistrictName: v.District.DistrictName,
 			CityName:     v.District.City.CityName,
 			ProvinceName: v.District.City.Province.ProvinceName,
-			PostalCode:   v.PostalCode,
+			Label:        v.Label,
 		})
 	}
 
