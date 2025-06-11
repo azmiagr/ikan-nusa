@@ -24,7 +24,7 @@ func NewService(repository *repository.Repository, bcrypt bcrypt.Interface, jwtA
 		UserService:        NewUserService(repository.UserRepository, repository.CartRepository, repository.AddressRepository, repository.OtpRepository, repository.StoreRepository, repository.ProductRepository, repository.CartItemsRepository, repository.TransactionRepository, bcrypt, jwtAuth, supabase),
 		ProductService:     NewProductService(repository.ProductRepository, repository.StoreRepository, supabase),
 		CartItemsService:   NewCartItemsService(repository.UserRepository, repository.CartItemsRepository, repository.CartRepository, repository.ProductRepository, repository.StoreRepository),
-		ReviewService:      NewReviewService(repository.ReviewRepository, repository.UserRepository),
+		ReviewService:      NewReviewService(repository.ReviewRepository, repository.UserRepository, repository.ProductRepository),
 		ProductTypeService: NewProductTypeService(repository.ProductTypeRepository),
 		StoreService:       NewStoreService(repository.StoreRepository, repository.UserRepository, repository.AddressRepository),
 		ProvinceService:    NewProvinceService(repository.ProvinceRepository),
