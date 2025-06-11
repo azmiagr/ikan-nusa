@@ -24,18 +24,20 @@ type IProductService interface {
 }
 
 type ProductService struct {
-	db                *gorm.DB
-	ProductRepository repository.IProductRepository
-	StoreRepository   repository.IStoreRepository
-	Supabase          supabase.Interface
+	db                    *gorm.DB
+	ProductTypeRepository repository.IProductTypeRepository
+	ProductRepository     repository.IProductRepository
+	StoreRepository       repository.IStoreRepository
+	Supabase              supabase.Interface
 }
 
-func NewProductService(productRepository repository.IProductRepository, storeRepository repository.IStoreRepository, supabase supabase.Interface) IProductService {
+func NewProductService(productTypeRepository repository.IProductTypeRepository, productRepository repository.IProductRepository, storeRepository repository.IStoreRepository, supabase supabase.Interface) IProductService {
 	return &ProductService{
-		db:                mariadb.Connection,
-		ProductRepository: productRepository,
-		StoreRepository:   storeRepository,
-		Supabase:          supabase,
+		db:                    mariadb.Connection,
+		ProductTypeRepository: productTypeRepository,
+		ProductRepository:     productRepository,
+		StoreRepository:       storeRepository,
+		Supabase:              supabase,
 	}
 }
 
@@ -97,11 +99,12 @@ func (p *ProductService) GetProductsByCategory(category string) ([]*model.GetPro
 		}
 
 		res = append(res, &model.GetProductsByCategoryResponse{
-			ProductID:   v.ProductID,
-			ProductName: v.ProductName,
-			Price:       v.Price,
-			ImageURL:    v.ImageURL,
-			StoreName:   store.StoreName,
+			ProductID:     v.ProductID,
+			ProductName:   v.ProductName,
+			Price:         v.Price,
+			ImageURL:      v.ImageURL,
+			StoreName:     store.StoreName,
+			ProductTypeID: v.ProductTypeID,
 		})
 	}
 
@@ -131,6 +134,11 @@ func (p *ProductService) GetProductsDetail(productID int) (*model.GetProductsDet
 		return nil, err
 	}
 
+	productType, err := p.ProductTypeRepository.GetTypeByID(product.ProductTypeID)
+	if err != nil {
+		return nil, err
+	}
+
 	res := &model.GetProductsDetailResponse{
 		ProductID:   product.ProductID,
 		ProductName: product.ProductName,
@@ -140,6 +148,7 @@ func (p *ProductService) GetProductsDetail(productID int) (*model.GetProductsDet
 		Category:    product.Category,
 		ImageURL:    product.ImageURL,
 		StoreName:   store.StoreName,
+		ProductType: productType.Type,
 	}
 
 	err = tx.Commit().Error
@@ -171,11 +180,12 @@ func (p *ProductService) GetProductsByName(productName string) ([]*model.Getprod
 		}
 
 		res = append(res, &model.GetproductsByNameResponse{
-			ProductID:   v.ProductID,
-			ProductName: v.ProductName,
-			Price:       v.Price,
-			ImageURL:    v.ImageURL,
-			StoreName:   store.StoreName,
+			ProductID:     v.ProductID,
+			ProductName:   v.ProductName,
+			Price:         v.Price,
+			ImageURL:      v.ImageURL,
+			StoreName:     store.StoreName,
+			ProductTypeID: v.ProductTypeID,
 		})
 	}
 
@@ -202,11 +212,12 @@ func (p *ProductService) GetAllProducts() ([]*model.GetAllProductsResponse, erro
 		}
 
 		res = append(res, &model.GetAllProductsResponse{
-			ProductID:   v.ProductID,
-			ProductName: v.ProductName,
-			Price:       v.Price,
-			StoreName:   store.StoreName,
-			ImageURL:    v.ImageURL,
+			ProductID:     v.ProductID,
+			ProductName:   v.ProductName,
+			Price:         v.Price,
+			StoreName:     store.StoreName,
+			ImageURL:      v.ImageURL,
+			ProductTypeID: v.ProductTypeID,
 		})
 	}
 
@@ -264,11 +275,12 @@ func (p *ProductService) GetProductsByType(typeID int) ([]*model.GetProductsByTy
 		}
 
 		res = append(res, &model.GetProductsByTypeResponse{
-			ProductID:   v.ProductID,
-			ProductName: v.ProductName,
-			Price:       v.Price,
-			StoreName:   store.StoreName,
-			ImageURL:    v.ImageURL,
+			ProductID:     v.ProductID,
+			ProductName:   v.ProductName,
+			Price:         v.Price,
+			StoreName:     store.StoreName,
+			ImageURL:      v.ImageURL,
+			ProductTypeID: v.ProductTypeID,
 		})
 	}
 
