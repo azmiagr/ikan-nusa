@@ -16,11 +16,12 @@ type AddProductResponse struct {
 }
 
 type GetProductsByCategoryResponse struct {
-	ProductID   int     `json:"product_id"`
-	ProductName string  `json:"product_name"`
-	Price       float64 `json:"price"`
-	StoreName   string  `json:"store_name"`
-	ImageURL    string  `json:"image_url"`
+	ProductID     int     `json:"product_id"`
+	ProductName   string  `json:"product_name"`
+	Price         float64 `json:"price"`
+	StoreName     string  `json:"store_name"`
+	ImageURL      string  `json:"image_url"`
+	ProductTypeID int     `json:"product_type_id"`
 }
 
 type GetProductsDetailResponse struct {
@@ -32,30 +33,34 @@ type GetProductsDetailResponse struct {
 	Description string  `json:"description"`
 	Category    string  `json:"category"`
 	StoreName   string  `json:"store_name"`
+	ProductType string  `json:"product_type"`
 }
 
 type GetproductsByNameResponse struct {
-	ProductID   int     `json:"product_id"`
-	ProductName string  `json:"product_name"`
-	Price       float64 `json:"price"`
-	StoreName   string  `json:"store_name"`
-	ImageURL    string  `json:"image_url"`
+	ProductID     int     `json:"product_id"`
+	ProductName   string  `json:"product_name"`
+	Price         float64 `json:"price"`
+	StoreName     string  `json:"store_name"`
+	ImageURL      string  `json:"image_url"`
+	ProductTypeID int     `json:"product_type_id"`
 }
 
 type GetAllProductsResponse struct {
-	ProductID   int     `json:"product_id"`
-	ProductName string  `json:"product_name"`
-	Price       float64 `json:"price"`
-	StoreName   string  `json:"store_name"`
-	ImageURL    string  `json:"image_url"`
+	ProductID     int     `json:"product_id"`
+	ProductName   string  `json:"product_name"`
+	Price         float64 `json:"price"`
+	StoreName     string  `json:"store_name"`
+	ImageURL      string  `json:"image_url"`
+	ProductTypeID int     `json:"product_type_id"`
 }
 
 type GetProductsByTypeResponse struct {
-	ProductID   int     `json:"product_id"`
-	ProductName string  `json:"product_name"`
-	Price       float64 `json:"price"`
-	StoreName   string  `json:"store_name"`
-	ImageURL    string  `json:"image_url"`
+	ProductID     int     `json:"product_id"`
+	ProductName   string  `json:"product_name"`
+	Price         float64 `json:"price"`
+	StoreName     string  `json:"store_name"`
+	ImageURL      string  `json:"image_url"`
+	ProductTypeID int     `json:"product_type_id"`
 }
 
 type GetProductParam struct {
