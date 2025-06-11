@@ -13,6 +13,7 @@ import (
 
 type IReviewService interface {
 	AddReview(userID uuid.UUID, param model.CreateReview) (*model.ReviewResponse, error)
+	GetReviewByProductID(productID int) ([]*model.ReviewResponse, error)
 }
 
 type ReviewService struct {
@@ -22,11 +23,12 @@ type ReviewService struct {
 	ProductRepository repository.IProductRepository
 }
 
-func NewReviewService(reviewRepository repository.IReviewRepository, userRepository repository.IUserRepository) IReviewService {
+func NewReviewService(reviewRepository repository.IReviewRepository, userRepository repository.IUserRepository, productRepository repository.IProductRepository) IReviewService {
 	return &ReviewService{
-		db:               mariadb.Connection,
-		ReviewRepository: reviewRepository,
-		UserRepository:   userRepository,
+		db:                mariadb.Connection,
+		ReviewRepository:  reviewRepository,
+		UserRepository:    userRepository,
+		ProductRepository: productRepository,
 	}
 }
 
@@ -71,4 +73,37 @@ func (r *ReviewService) AddReview(userID uuid.UUID, param model.CreateReview) (*
 
 	return res, nil
 
+}
+
+func (r *ReviewService) GetReviewByProductID(productID int) ([]*model.ReviewResponse, error) {
+	var res []*model.ReviewResponse
+
+	tx := r.db.Begin()
+	defer tx.Rollback()
+
+	reviews, err := r.ReviewRepository.GetReviewByProductID(tx, productID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range reviews {
+		user, err := r.UserRepository.GetUser(model.UserParam{
+			UserID: v.UserID,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, &model.ReviewResponse{
+			Username:      user.Username,
+			ReviewContent: v.ReviewContent,
+		})
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
