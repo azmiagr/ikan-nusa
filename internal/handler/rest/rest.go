@@ -29,7 +29,9 @@ func (r *Rest) MountEndpoint() {
 	baseURL.GET("/store-details/:store_name", r.GetStoreDetail)
 	baseURL.GET("/provinces", r.GetAllProvinces)
 	baseURL.GET("/cities", r.GetAllCities)
+	baseURL.GET("/cities/:province_id", r.GetCitiesByProvinceID)
 	baseURL.GET("/districts", r.GetAllDistricts)
+	baseURL.GET("/districts/:city_id", r.GetDistrictByCityId)
 
 	products := baseURL.Group("/products")
 	products.GET("/products-types", r.GetAllTypes)
