@@ -100,7 +100,7 @@ func (u *UserService) Register(param *model.UserRegister) (*model.UserRegisterRe
 		return nil, err
 	}
 
-	token, err := u.JwtAuth.CreateJWTToken(user.UserID)
+	token, err := u.JwtAuth.CreateJWTToken(user.UserID, user.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +214,7 @@ func (u *UserService) VerifyUser(param model.VerifyUser) (*model.VerifyUserRespo
 		return nil, err
 	}
 
-	token, err := u.JwtAuth.CreateJWTToken(user.UserID)
+	token, err := u.JwtAuth.CreateJWTToken(user.UserID, user.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -255,7 +255,7 @@ func (u *UserService) Login(param model.UserLoginParam) (*model.LoginResponse, e
 		return nil, errors.New("email or password is wrong")
 	}
 
-	token, err := u.JwtAuth.CreateJWTToken(user.UserID)
+	token, err := u.JwtAuth.CreateJWTToken(user.UserID, user.Username)
 	if err != nil {
 		return nil, err
 	}
