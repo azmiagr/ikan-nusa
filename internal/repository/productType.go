@@ -8,6 +8,7 @@ import (
 
 type IProductTypeRepository interface {
 	GetAllTypes() ([]*entity.ProductType, error)
+	GetTypeByID(typeID int) (*entity.ProductType, error)
 }
 
 type ProductTypeRepository struct {
@@ -26,4 +27,14 @@ func (p *ProductTypeRepository) GetAllTypes() ([]*entity.ProductType, error) {
 	}
 
 	return productTypes, nil
+}
+
+func (p *ProductTypeRepository) GetTypeByID(typeID int) (*entity.ProductType, error) {
+	var productType *entity.ProductType
+	err := p.db.Debug().Where("product_type_id=?", typeID).First(&productType).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return productType, nil
 }
