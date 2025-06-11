@@ -8,6 +8,7 @@ import (
 
 type IDistrictRepository interface {
 	GetAllDistricts() ([]*entity.District, error)
+	GetDistrictByCityId(cityID int) ([]*entity.District, error)
 }
 
 type DistrictRepository struct {
@@ -21,6 +22,16 @@ func NewDistrictRepository(db *gorm.DB) IDistrictRepository {
 func (d *DistrictRepository) GetAllDistricts() ([]*entity.District, error) {
 	var districts []*entity.District
 	err := d.db.Debug().Find(&districts).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return districts, nil
+}
+
+func (d *DistrictRepository) GetDistrictByCityId(cityID int) ([]*entity.District, error) {
+	var districts []*entity.District
+	err := d.db.Debug().Where("city_id = ?", cityID).Find(&districts).Error
 	if err != nil {
 		return nil, err
 	}
