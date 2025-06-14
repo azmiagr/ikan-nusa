@@ -37,6 +37,8 @@ func NewCartItemsService(userRepository repository.IUserRepository, CartItemsRep
 }
 
 func (ci *CartItemsService) AddToCart(storeID uuid.UUID, cartID int, param *model.AddToCartParam) (*model.AddToCartResponse, error) {
+	var finalCartItems *entity.CartItems
+
 	tx := ci.db.Begin()
 	defer tx.Rollback()
 
@@ -63,39 +65,36 @@ func (ci *CartItemsService) AddToCart(storeID uuid.UUID, cartID int, param *mode
 		return nil, errors.New("cannot add more quantity than this")
 	}
 
-	_, err = ci.CartItemsRepository.GetCartItemsByProductID(tx, product.ProductID)
+	existingCartItems, err := ci.CartItemsRepository.GetCartItemsByProductID(tx, product.ProductID)
 	if err != nil {
-		cartItems := &entity.CartItems{
+		newCartItems := &entity.CartItems{
 			Quantity:  param.Quantity,
 			Price:     product.Price,
 			CartID:    cart.CartID,
 			ProductID: product.ProductID,
 		}
 
-		_, err = ci.CartItemsRepository.CreateCartItems(tx, cartItems)
+		_, err = ci.CartItemsRepository.CreateCartItems(tx, newCartItems)
 		if err != nil {
 			return nil, err
 		}
 
-	}
+	} else {
+		existingCartItems.Quantity = param.Quantity
+		existingCartItems.Price = product.Price
 
-	cartItems, err := ci.CartItemsRepository.GetCartItemsByProductID(tx, product.ProductID)
-	if err != nil {
-		return nil, err
-	}
-
-	cartItems.Quantity = param.Quantity
-
-	_, err = ci.CartItemsRepository.UpdateCartItems(tx, cartItems)
-	if err != nil {
-		return nil, err
+		updatedItems, err := ci.CartItemsRepository.UpdateCartItems(tx, existingCartItems)
+		if err != nil {
+			return nil, err
+		}
+		finalCartItems = updatedItems
 	}
 
 	res := &model.AddToCartResponse{
-		CartItemsID: cartItems.CartItemsID,
+		CartItemsID: finalCartItems.CartItemsID,
 		ProductName: product.ProductName,
 		StoreName:   store.StoreName,
-		Quantity:    cartItems.Quantity,
+		Quantity:    finalCartItems.Quantity,
 		Price:       product.Price,
 	}
 
