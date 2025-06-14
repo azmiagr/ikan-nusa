@@ -74,10 +74,11 @@ func (ci *CartItemsService) AddToCart(storeID uuid.UUID, cartID int, param *mode
 			ProductID: product.ProductID,
 		}
 
-		_, err = ci.CartItemsRepository.CreateCartItems(tx, newCartItems)
+		createdItem, err := ci.CartItemsRepository.CreateCartItems(tx, newCartItems)
 		if err != nil {
 			return nil, err
 		}
+		finalCartItems = createdItem
 
 	} else {
 		existingCartItems.Quantity = param.Quantity
