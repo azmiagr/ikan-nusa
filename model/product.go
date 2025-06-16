@@ -19,6 +19,7 @@ type GetProductsByCategoryResponse struct {
 	ProductID     int     `json:"product_id"`
 	ProductName   string  `json:"product_name"`
 	Price         float64 `json:"price"`
+	Stock         int     `json:"stock"`
 	StoreName     string  `json:"store_name"`
 	ImageURL      string  `json:"image_url"`
 	ProductTypeID int     `json:"product_type_id"`
@@ -40,6 +41,7 @@ type GetproductsByNameResponse struct {
 	ProductID     int     `json:"product_id"`
 	ProductName   string  `json:"product_name"`
 	Price         float64 `json:"price"`
+	Stock         int     `json:"stock"`
 	StoreName     string  `json:"store_name"`
 	ImageURL      string  `json:"image_url"`
 	ProductTypeID int     `json:"product_type_id"`
@@ -49,6 +51,7 @@ type GetAllProductsResponse struct {
 	ProductID     int     `json:"product_id"`
 	ProductName   string  `json:"product_name"`
 	Price         float64 `json:"price"`
+	Stock         int     `json:"stock"`
 	StoreName     string  `json:"store_name"`
 	ImageURL      string  `json:"image_url"`
 	ProductTypeID int     `json:"product_type_id"`
@@ -58,6 +61,7 @@ type GetProductsByTypeResponse struct {
 	ProductID     int     `json:"product_id"`
 	ProductName   string  `json:"product_name"`
 	Price         float64 `json:"price"`
+	Stock         int     `json:"stock"`
 	StoreName     string  `json:"store_name"`
 	ImageURL      string  `json:"image_url"`
 	ProductTypeID int     `json:"product_type_id"`
