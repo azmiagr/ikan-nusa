@@ -11,7 +11,8 @@ RUN go build -o main ./cmd/app
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
+
 COPY --from=builder /app/main .
 
-EXPOSE 4000
+EXPOSE $PORT
 CMD ["./main"]
